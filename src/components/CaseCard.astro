@@ -1,0 +1,30 @@
+---
+import CaseImage from './CaseImage.astro';
+import Arrow from './Arrow.astro';
+import { caseUrl } from '../data/site';
+import type { VisibleCase } from '../lib/cases';
+
+interface Props { entry: VisibleCase }
+
+const { entry } = Astro.props;
+const { cardImage, cover, title, client, category, summary } = entry.data;
+const image = cardImage ?? cover;
+---
+
+<article class="case-card">
+  {image && (
+    <figure class="case-card-photo case-photo">
+      <div class="case-photo-crop"><CaseImage image={image} sizes="(min-width: 70rem) 380px, (min-width: 43rem) 46vw, 92vw" /></div>
+      {image.caption && <figcaption>{image.caption}</figcaption>}
+    </figure>
+  )}
+  <div class="case-card-copy">
+    <p class="case-kicker">{category}</p>
+    <p class="case-client">{client}</p>
+    <h3>{title}</h3>
+    <p class="case-summary">{summary}</p>
+    <a class="text-link card-action" href={caseUrl(entry.slug)}>
+      Leer caso <span class="sr-only"> de {client}: {title}</span><span aria-hidden="true"><Arrow /></span>
+    </a>
+  </div>
+</article>

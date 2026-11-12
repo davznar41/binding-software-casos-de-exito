@@ -1,0 +1,26 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../data/site';
+---
+
+<BaseLayout title="Accesibilidad | Binding Software" description="Medidas de accesibilidad de la sección Casos de éxito y canal de contacto.">
+  <article class="document container">
+    <div class="document-inner">
+      <h1>Accesibilidad</h1>
+      <p class="intro">Información sobre la accesibilidad de Casos de éxito de Binding Software.</p>
+      <section aria-labelledby="measures-title">
+        <h2 id="measures-title">Medidas aplicadas</h2>
+        <p>La sección utiliza navegación por teclado, foco visible, encabezados jerárquicos, alternativas de imagen, diseño adaptable y compatibilidad con la preferencia de movimiento reducido.</p>
+      </section>
+      <section aria-labelledby="scope-title">
+        <h2 id="scope-title">Alcance de la evaluación</h2>
+        <p>El objetivo de diseño es WCAG 2.2 AA. La revisión de conformidad integral y la validación de esta declaración por Binding están pendientes.</p>
+      </section>
+      <section aria-labelledby="support-title">
+        <h2 id="support-title">Comunicar una barrera</h2>
+        <p>Si encuentras una dificultad para acceder al contenido, puedes escribir mediante el <a href={site.contact}>formulario de contacto de Binding Software</a>.</p>
+      </section>
+      <a class="text-link return" href={site.cases}><span aria-hidden="true">←</span> Volver a Casos de éxito</a>
+    </div>
+  </article>
+</BaseLayout>

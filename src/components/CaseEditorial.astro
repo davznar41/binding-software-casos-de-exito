@@ -1,0 +1,43 @@
+---
+import CaseComparison from './CaseComparison.astro';
+import CaseGallery from './CaseGallery.astro';
+import CasePhoto from './CasePhoto.astro';
+import CaseQuote from './CaseQuote.astro';
+import CaseResults from './CaseResults.astro';
+import CaseVideo from './CaseVideo.astro';
+import { editorialBlockId, type RenderedBlock } from '../lib/editorial';
+
+interface Props { blocks: RenderedBlock[] }
+
+const { blocks } = Astro.props;
+---
+
+{blocks.length > 0 && (
+  <div class="article-reading editorial-flow">
+    {blocks.map((block, index) => {
+      const id = editorialBlockId(index);
+      switch (block.type) {
+        case 'texto': {
+          const { Content } = block;
+          return <div class="article-prose" data-editorial-block={block.type}><Content /></div>;
+        }
+        case 'imagen':
+          return <div class:list={[{ "editorial-wide": block.width === "amplia" }]} data-editorial-enter data-editorial-block={block.type}><CasePhoto image={block.image} variant={block.variant} sizes={block.width === "amplia" ? "auto, 92vw" : undefined} /></div>;
+        case 'galeria':
+          return <div class:list={[{ "editorial-wide": block.width === "amplia" }]} data-editorial-enter data-editorial-block={block.type}><CaseGallery images={block.images} id={id} title={block.title} variant={block.variant} /></div>;
+        case 'video':
+          return <div data-editorial-block={block.type}><CaseVideo video={block.video} id={id} /></div>;
+        case 'testimonio':
+          return <div data-editorial-enter data-editorial-block={block.type}><CaseQuote quote={block.quote} id={id} title={block.title} /></div>;
+        case 'resultados':
+          return <div data-editorial-enter data-editorial-block={block.type}><CaseResults results={block.results} id={id} title={block.title} /></div>;
+        case 'comparacion':
+          return <div data-editorial-enter data-editorial-block={block.type}><CaseComparison comparison={block.comparison} id={id} title={block.title} /></div>;
+      }
+    })}
+  </div>
+)}
+
+
+
+

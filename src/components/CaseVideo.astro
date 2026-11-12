@@ -1,0 +1,153 @@
+---
+import CaseImage from './CaseImage.astro';
+import { caseMediaUrl } from '../data/site';
+import type { EditorialBlock } from '../lib/cases';
+
+interface Props {
+  video: Extract<EditorialBlock, { type: 'video' }>['video'];
+  id: string;
+}
+
+const { video, id } = Astro.props;
+const external = video.provider === 'youtube'
+  ? {
+      label: 'YouTube',
+      watch: 'https://www.youtube.com/watch?v=' + video.id,
+      embed: 'https://www.youtube-nocookie.com/embed/' + video.id,
+    }
+  : video.provider === 'vimeo'
+    ? {
+        label: 'Vimeo',
+        watch: 'https://vimeo.com/' + video.id,
+        embed: 'https://player.vimeo.com/video/' + video.id + '?dnt=1',
+      }
+    : undefined;
+---
+
+<section class="article-section case-video" aria-labelledby={id}>
+  <h2 id={id}>{video.title}</h2>
+  <figure>
+    {video.provider === 'local' && (
+      <video controls playsinline preload="none" aria-labelledby={id}
+        poster={video.poster && caseMediaUrl(video.poster.file)}>
+        {video.sources.map((file) => (
+          <source src={caseMediaUrl(file)} type={file.endsWith('.mp4') ? 'video/mp4' : 'video/webm'} />
+        ))}
+        {video.captions?.map((track, index) => (
+          <track kind="captions" src={caseMediaUrl(track.file)} srclang={track.lang}
+            label={track.label} default={index === 0} />
+        ))}
+        <a href={caseMediaUrl(video.sources[0])}>Abrir el vídeo «{video.title}»</a>
+      </video>
+    )}
+    {external && (
+      <binding-video>
+        <div data-player>
+          {video.poster && <div class="video-poster"><CaseImage image={video.poster} sizes="(min-width: 62rem) 760px, 92vw" /></div>}
+        </div>
+        <button hidden type="button" class="button" data-activate>Cargar vídeo de {external.label}<span class="sr-only">: {video.title}</span></button>
+        <p class="video-privacy">Al cargar el vídeo, el reproductor se conecta con {external.label}.</p>
+        <a class="text-link" href={external.watch} rel="noreferrer">Ver «{video.title}» en {external.label} <span aria-hidden="true">↗</span></a>
+        <template>
+          <iframe src={external.embed} title={video.title}
+            referrerpolicy="strict-origin-when-cross-origin" allow="fullscreen; picture-in-picture" allowfullscreen></iframe>
+        </template>
+      </binding-video>
+    )}
+    {video.caption && <figcaption>{video.caption}</figcaption>}
+  </figure>
+  {video.provider === 'local' && video.describedVersion && (
+    <a class="text-link" href={caseMediaUrl(video.describedVersion)}>Ver «{video.title}» con audiodescripción</a>
+  )}
+  <details class="video-transcript">
+    <summary>Transcripción y descripción<span class="sr-only"> de {video.title}</span></summary>
+    <p>{video.transcript}</p>
+  </details>
+</section>
+
+<script>
+  class BindingVideo extends HTMLElement {
+    connectedCallback() {
+      const button = this.querySelector<HTMLButtonElement>('[data-activate]');
+      const template = this.querySelector<HTMLTemplateElement>('template');
+      const player = this.querySelector('[data-player]');
+      if (!button || !template || !player || player.querySelector('iframe')) return;
+
+      button.hidden = false;
+      button.addEventListener('click', () => {
+        player.replaceChildren(template.content.cloneNode(true));
+        button.hidden = true;
+        player.querySelector('iframe')?.focus();
+      }, { once: true });
+    }
+  }
+  if (!customElements.get('binding-video')) customElements.define('binding-video', BindingVideo);
+</script>
+
+<style>
+  figure {
+    margin: 0;
+  }
+
+  video,
+  iframe,
+  .video-poster :global(img) {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    height: auto;
+    border: 0;
+    border-radius: var(--radius-button);
+    background: var(--color-dark);
+  }
+
+  video,
+  .video-poster :global(img) {
+    object-fit: contain;
+  }
+
+  binding-video {
+    display: block;
+    padding: var(--space-4);
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-panel);
+  }
+
+  [data-player]:not(:empty),
+  [data-activate]:not([hidden]) {
+    margin-bottom: var(--space-3);
+  }
+
+  [data-activate][hidden] {
+    display: none;
+  }
+
+  .video-privacy,
+  figcaption {
+    font-size: var(--font-small);
+    color: var(--color-muted);
+  }
+
+  figcaption,
+  .video-transcript {
+    margin-top: var(--space-3);
+  }
+
+  .video-transcript {
+    border-block: 1px solid var(--color-line);
+  }
+
+  summary {
+    min-height: var(--target-size);
+    padding-block: var(--space-3);
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .video-transcript p {
+    padding-bottom: var(--space-4);
+    white-space: pre-line;
+  }
+</style>
+

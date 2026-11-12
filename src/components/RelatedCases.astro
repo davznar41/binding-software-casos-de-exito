@@ -1,0 +1,19 @@
+---
+import CaseCard from './CaseCard.astro';
+import type { VisibleCase } from '../lib/cases';
+
+interface Props { entries: VisibleCase[] }
+
+const { entries } = Astro.props;
+---
+
+{entries.length > 0 && (
+  <section class="case-related section" aria-labelledby="related-title">
+    <div class="container">
+      <h2 id="related-title">Casos relacionados</h2>
+      <ul class="case-grid" role="list">
+        {entries.map((entry) => <li data-editorial-enter><CaseCard entry={entry} /></li>)}
+      </ul>
+    </div>
+  </section>
+)}

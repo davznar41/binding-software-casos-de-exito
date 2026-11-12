@@ -1,0 +1,134 @@
+---
+interface Props {
+  title: string;
+  summary: string;
+  eyebrow?: string;
+  credit?: string;
+  hasMedia?: boolean;
+}
+
+const { title, summary, eyebrow, credit, hasMedia = Astro.slots.has('media') } = Astro.props;
+---
+
+<header class="corporate-hero">
+  {hasMedia && <div class="hero-media"><slot name="media" /></div>}
+  <div class="container hero-inner">
+    {Astro.slots.has('trail') && <div class="hero-trail"><slot name="trail" /></div>}
+    <div class="hero-copy article-heading">
+      {eyebrow && <p class="hero-eyebrow">{eyebrow}</p>}
+      <h1>{title}</h1>
+      <p class="hero-summary">{summary}</p>
+      <slot name="byline" />
+    </div>
+    {credit && <p class="hero-credit">{credit}</p>}
+  </div>
+</header>
+
+<style>
+  .corporate-hero {
+    display: grid;
+    isolation: isolate;
+    position: relative;
+    background: var(--color-dark);
+    color: var(--color-on-dark);
+    min-block-size: max(0px, calc(100vh - var(--site-header-height)));
+    min-block-size: max(0px, calc(100svh - var(--site-header-height)));
+  }
+
+  .hero-media,
+  .hero-media::after,
+  .hero-media :global(img),
+  .hero-media :global(picture) {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  .hero-media {
+    z-index: -1;
+  }
+
+  .hero-media :global(img) {
+    object-fit: cover;
+    --case-focal-current: var(--case-focal-mobile, center);
+    object-position: center;
+  }
+
+  .hero-media::after {
+    content: '';
+    background: linear-gradient(180deg, rgb(20 14 28 / 92%) 0%, rgb(20 14 28 / 78%) 52%, rgb(20 14 28 / 86%) 100%);
+  }
+
+  .hero-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    padding-block: var(--space-4) max(var(--space-4), env(safe-area-inset-bottom));
+    gap: clamp(var(--space-3), 3svh, var(--space-6));
+  }
+
+  .hero-copy {
+    display: grid;
+    gap: var(--space-4);
+    justify-items: start;
+    max-width: min(100%, 46rem);
+    margin-block: auto;
+    padding-block: clamp(var(--space-3), 4svh, var(--space-8));
+    overflow-wrap: anywhere;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(2rem, 8vw, var(--font-display));
+    text-wrap: pretty;
+  }
+
+  .hero-eyebrow {
+    color: var(--color-accent);
+    text-transform: uppercase;
+    font-size: var(--font-caption);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+  }
+
+  .hero-summary {
+    max-width: 48ch;
+    font-size: var(--font-lead);
+    color: var(--color-on-dark);
+  }
+
+  .hero-credit {
+    font-size: var(--font-caption);
+    color: var(--color-on-dark-muted);
+    background: var(--color-dark);
+    border-radius: var(--radius-button);
+    padding: var(--space-1) var(--space-2);
+  }
+
+  .hero-copy :global(.case-client),
+  .hero-trail :global(.breadcrumbs ol) {
+    color: var(--color-on-dark-muted);
+  }
+
+  .hero-trail :global(.breadcrumbs a) {
+    color: var(--color-on-dark);
+  }
+
+  @media (min-width: 48rem) {
+    .hero-media :global(img) {
+      --case-focal-current: var(--case-focal-desktop, center);
+    }
+  }
+
+  @media (min-width: 60rem) {
+    .hero-media::after {
+      background:
+        linear-gradient(90deg, rgb(20 14 28 / 96%) 0%, rgb(20 14 28 / 86%) 43%, rgb(20 14 28 / 75%) 61%, rgb(20 14 28 / 18%) 100%),
+        linear-gradient(180deg, rgb(20 14 28 / 75%) 0%, transparent 24%, transparent 73%, rgb(20 14 28 / 70%) 100%);
+    }
+  }
+</style>
+
+
+
+

@@ -1,0 +1,20 @@
+---
+import type { EditorialBlock } from '../lib/cases';
+interface Props { comparison: Extract<EditorialBlock, { type: 'comparacion' }>['comparison']; id: string; title?: string }
+const { comparison, id, title = 'Antes y después' } = Astro.props;
+---
+
+<section class="article-section" aria-labelledby={id}>
+  <h2 id={id}>{title}</h2>
+  <div class="comparison-grid">
+    <div class="comparison-panel">
+      <h3>Antes</h3>
+      <ul>{comparison.before.map((item) => <li>{item}</li>)}</ul>
+    </div>
+    <div class="comparison-panel">
+      <h3>Después</h3>
+      <ul>{comparison.after.map((item) => <li>{item}</li>)}</ul>
+    </div>
+  </div>
+</section>
+

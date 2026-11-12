@@ -1,0 +1,63 @@
+---
+import CasePhoto from './CasePhoto.astro';
+import type { EditorialBlock } from '../lib/cases';
+
+type Gallery = Extract<EditorialBlock, { type: 'galeria' }>;
+interface Props {
+  id: string;
+  images: Gallery['images'];
+  title?: string;
+  variant?: Gallery['variant'];
+}
+
+const { id, images, title = 'Galería', variant = 'uniforme' } = Astro.props;
+const mosaicSizes = '(min-width: 78rem) 580px, (min-width: 45rem) 46vw, 92vw';
+---
+
+<section class="article-section gallery-frame" aria-labelledby={id}>
+  <h2 id={id}>{title}</h2>
+  <div class="gallery-grid" data-gallery={variant} data-count={images.length}>
+    {images.map((image, index) => (
+      <CasePhoto
+        image={image}
+        variant="mosaico"
+        sizes={(variant === 'destacada' && index === 0) || images.length === 1
+          ? 'auto, (min-width: 78rem) 1168px, 92vw'
+          : 'auto, ' + mosaicSizes}
+      />
+    ))}
+  </div>
+</section>
+
+<style>
+  .gallery-frame {
+    container-type: inline-size;
+  }
+
+  .gallery-grid {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .gallery-grid[data-gallery='destacada'] > :global(figure:first-child) {
+    grid-column: 1 / -1;
+  }
+
+  @container (min-width: 32rem) {
+    .gallery-grid:not([data-count='1']) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .gallery-grid[data-gallery='destacada'][data-count='2'] {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @container (min-width: 48rem) {
+    .gallery-grid[data-gallery='uniforme']:not([data-count='1'], [data-count='2'], [data-count='4']) {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

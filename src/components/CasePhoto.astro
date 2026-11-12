@@ -1,0 +1,53 @@
+---
+import CaseImage from './CaseImage.astro';
+import type { CaseImage as EditorialImage } from '../lib/cases';
+
+interface Props {
+  image: EditorialImage;
+  variant?: 'columna' | 'destacada' | 'mosaico';
+  sizes?: string;
+}
+
+const { image, variant = 'columna', sizes = '(min-width: 62rem) 760px, 92vw' } = Astro.props;
+---
+
+<figure class:list={['case-photo', 'editorial-photo', {
+  'editorial-photo--featured': variant === 'destacada',
+  'editorial-photo--tile': variant === 'mosaico',
+  'editorial-photo--contain': variant === 'mosaico' && image.fit === 'contener',
+}]}>
+  <CaseImage image={image} sizes={sizes} />
+  {image.caption && <figcaption>{image.caption}</figcaption>}
+</figure>
+
+<style>
+  .editorial-photo {
+    margin: 0;
+  }
+
+  .editorial-photo :global(img) {
+    display: block;
+    border-radius: var(--radius-button);
+  }
+
+  .editorial-photo--featured :global(img) {
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+  }
+
+  .editorial-photo--tile :global(img) {
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+    --case-focal-current: var(--case-focal-mobile, center);
+  }
+
+  .editorial-photo--contain :global(img) {
+    object-fit: contain;
+  }
+
+  @media (min-width: 48rem) {
+    .editorial-photo--tile :global(img) {
+      --case-focal-current: var(--case-focal-desktop, center);
+    }
+  }
+</style>

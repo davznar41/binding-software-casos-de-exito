@@ -1,0 +1,20 @@
+---
+import type { EditorialBlock } from '../lib/cases';
+interface Props { results: Extract<EditorialBlock, { type: 'resultados' }>['results']; id: string; title?: string }
+const { results, id, title = 'Resultados' } = Astro.props;
+---
+
+<section class="article-section" aria-labelledby={id}>
+  <h2 id={id}>{title}</h2>
+  <ul class="result-list" role="list">
+    {results.map((result) => (
+      <li>
+        {result.type === 'cuantitativo' && <strong class="result-value">{result.value}</strong>}
+        <p>{result.description}</p>
+        {result.type === 'cuantitativo' && <p class="result-source">Fuente: {result.source}</p>}
+      </li>
+    ))}
+  </ul>
+</section>
+
+

@@ -1,0 +1,30 @@
+---
+import CaseImage from './CaseImage.astro';
+import type { CaseData } from '../lib/cases';
+
+interface Props { data: CaseData }
+
+const { data } = Astro.props;
+const { facts, sector, location, solutions } = data;
+const values = [
+  ['Ubicación', location],
+  ['Sector', sector],
+  ['Tipo de establecimiento', facts?.establishment],
+  ['Habitaciones', facts?.rooms],
+  ['Soluciones', solutions?.join(', ')],
+  ['Implantación', facts?.implementedOn],
+].filter(([, value]) => value !== undefined);
+---
+
+{(values.length > 0 || facts?.logo || facts?.website) && (
+  <section class="case-facts" aria-labelledby="case-facts-title">
+    <h2 id="case-facts-title">Ficha del establecimiento</h2>
+    {facts?.logo && <div class="case-logo"><CaseImage image={facts.logo} /></div>}
+    {values.length > 0 && (
+      <dl>
+        {values.map(([label, value]) => <div><dt>{label}</dt><dd>{value}</dd></div>)}
+      </dl>
+    )}
+    {facts?.website && <a class="text-link" href={facts.website}>Sitio web de {data.client} <span aria-hidden="true">↗</span></a>}
+  </section>
+)}

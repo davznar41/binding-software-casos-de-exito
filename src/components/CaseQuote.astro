@@ -1,0 +1,23 @@
+---
+import CaseImage from './CaseImage.astro';
+import type { EditorialBlock } from '../lib/cases';
+interface Props { quote: Extract<EditorialBlock, { type: 'testimonio' }>['quote']; id: string; title?: string }
+const { quote, id, title = 'Testimonio' } = Astro.props;
+---
+
+<section class="article-section" aria-labelledby={id}>
+  <h2 id={id}>{title}</h2>
+  <figure class="case-quote">
+    <blockquote><p>«{quote.text}»</p></blockquote>
+    <figcaption>
+      {quote.photo && <div class="quote-photo"><CaseImage image={quote.photo} /></div>}
+      <div>
+        <strong>{quote.author}</strong>
+        {[quote.role, quote.establishment].filter(Boolean).length > 0 && (
+          <p>{[quote.role, quote.establishment].filter(Boolean).join(' · ')}</p>
+        )}
+      </div>
+    </figcaption>
+  </figure>
+</section>
+

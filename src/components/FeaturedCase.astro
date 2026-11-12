@@ -1,0 +1,30 @@
+---
+import CaseImage from './CaseImage.astro';
+import CorporateCTA from './CorporateCTA.astro';
+import { caseUrl } from '../data/site';
+import type { VisibleCase } from '../lib/cases';
+
+interface Props { entry: VisibleCase }
+
+const { entry } = Astro.props;
+const { cardImage, cover, client, category, title, summary } = entry.data;
+const image = cover ?? cardImage;
+---
+
+<article class="featured-case" data-editorial-enter>
+  {image && (
+    <figure class="featured-photo case-photo">
+      <div class="case-photo-crop"><CaseImage image={image} sizes="(min-width: 60rem) 660px, 92vw" /></div>
+      {image.caption && <figcaption>{image.caption}</figcaption>}
+    </figure>
+  )}
+  <div class="featured-copy">
+    <p class="case-kicker">Caso destacado <span aria-hidden="true">·</span> {category}</p>
+    <p class="case-client">{client}</p>
+    <h2>{title}</h2>
+    <p class="case-summary">{summary}</p>
+    <CorporateCTA class="featured-action" href={caseUrl(entry.slug)}>
+      Leer caso <span class="sr-only"> de {client}: {title}</span>
+    </CorporateCTA>
+  </div>
+</article>
