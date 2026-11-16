@@ -1,5 +1,6 @@
 ---
 status: demostracion
+caseId: recepcion-hotel-arcilla
 origin: sintetico
 title: Una recepción preparada para las horas punta
 summary: Un hotel urbano conecta la lectura de documentos, la firma y el PMS para atender las llegadas con un flujo común.

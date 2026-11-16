@@ -1,7 +1,9 @@
 ---
+import { languageFromPath, ui } from '../data/languages';
+const t = ui(languageFromPath(Astro.url.pathname));
 import type { EditorialBlock } from '../lib/cases';
 interface Props { results: Extract<EditorialBlock, { type: 'resultados' }>['results']; id: string; title?: string }
-const { results, id, title = 'Resultados' } = Astro.props;
+const { results, id, title = t.results } = Astro.props;
 ---
 
 <section class="article-section" aria-labelledby={id}>
@@ -11,7 +13,7 @@ const { results, id, title = 'Resultados' } = Astro.props;
       <li>
         {result.type === 'cuantitativo' && <strong class="result-value">{result.value}</strong>}
         <p>{result.description}</p>
-        {result.type === 'cuantitativo' && <p class="result-source">Fuente: {result.source}</p>}
+        {result.type === 'cuantitativo' && <p class="result-source">{t.source}: {result.source}</p>}
       </li>
     ))}
   </ul>

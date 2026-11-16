@@ -54,7 +54,8 @@ export async function renderEditorial(entry: CaseStudy): Promise<RenderedBlock[]
       result.push(block);
       continue;
     }
-    const id = block.file ? entry.slug + '/' + block.file : '';
+    const fragmentFolder = entry.data.language === 'es' ? entry.slug : entry.id;
+    const id = block.file ? fragmentFolder + '/' + block.file : '';
     if (texts.has(id)) throw errors('El bloque de texto «' + (id || 'cuerpo principal') + '» ya se usa.');
     texts.add(id);
 

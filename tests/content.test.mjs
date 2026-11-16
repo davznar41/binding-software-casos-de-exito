@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { after, before, test } from 'node:test';
-import { build } from '../scripts/build-tools.mjs';
+import { build, testEnv } from '../scripts/build-tools.mjs';
 
 const reports = resolve('artifacts/quality');
 let sandbox;
@@ -244,4 +244,49 @@ test('rechaza usar una variante de la misma foto como otra imagen de la galería
   ].join('\n');
   expectInvalid('foto-repetida', example.replace('  - type: texto', '  - type: texto\n' + gallery),
     /Usa cada foto y sus variantes una sola vez/);
+});
+
+test('identidad bilingüe, estados independientes, canonical y enlaces alternativos', () => {
+  const spanish = 'control-bilingue';
+  const english = 'bilingual-check';
+  const translated = example.replace('Caso de control sintético', 'Bilingual publication check')
+    + '\nlanguage: en\ncaseId: ' + spanish + '\nslug: ' + english;
+  const esFile = join(output, 'casos-de-exito', spanish, 'index.html');
+  const enFile = join(output, 'en/casos-de-exito', english, 'index.html');
+  const oldSite = testEnv.BINDING_SITE_URL;
+  testEnv.BINDING_SITE_URL = 'https://binding.example';
+  try {
+    fixture(spanish, example.replace('Caso de control sintético', 'Control de publicación en español'));
+    fixture(spanish + '-en', translated.replace('status: publicado', 'status: demostracion'));
+    let result = run();
+    assert.equal(result.status, 0, result.log);
+    assert.equal(existsSync(enFile), false);
+    assert.match(readFileSync(esFile, 'utf8'), /Este artículo aún no está disponible en inglés/);
+    assert.doesNotMatch(readFileSync(esFile, 'utf8'), /rel="alternate" hreflang="en"/);
+
+    fixture(spanish + '-en', translated, '\n---\n\n## The challenge\n\nEnglish control text.\n');
+    result = run();
+    assert.equal(result.status, 0, result.log);
+    const esHtml = readFileSync(esFile, 'utf8');
+    const enHtml = readFileSync(enFile, 'utf8');
+    assert.match(esHtml, /rel="alternate" hreflang="en" href="https:\/\/binding\.example\/en\/casos-de-exito\/bilingual-check\/"/);
+    assert.match(enHtml, /rel="canonical" href="https:\/\/binding\.example\/en\/casos-de-exito\/bilingual-check\/"/);
+    assert.match(enHtml, /rel="alternate" hreflang="es" href="https:\/\/binding\.example\/casos-de-exito\/control-bilingue\/"/);
+    assert.match(enHtml, /<html lang="en"/);
+  } finally {
+    if (oldSite === undefined) delete testEnv.BINDING_SITE_URL;
+    else testEnv.BINDING_SITE_URL = oldSite;
+    for (const id of [spanish, spanish + '-en']) rmSync(join(content, id + '.md'), { force: true });
+  }
+});
+
+test('rechaza traducciones huérfanas y duplicidad de identidad en el mismo idioma', () => {
+  expectInvalid('bilingual-orphan', example + '\nlanguage: en\ncaseId: missing-original', /no existe la entrada española/);
+  const header = example.replace('Caso de control sintético', 'Control de identidad') + '\ncaseId: same-identity';
+  fixture('identity-control', header);
+  try {
+    expectInvalid('duplicated-identity', header.replace('Control de identidad', 'Identidad duplicada'), /identidad duplicada/);
+  } finally {
+    rmSync(join(content, 'identity-control.md'), { force: true });
+  }
 });

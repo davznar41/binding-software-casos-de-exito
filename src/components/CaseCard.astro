@@ -1,4 +1,6 @@
 ---
+import { languageFromPath, ui } from '../data/languages';
+const t = ui(languageFromPath(Astro.url.pathname));
 import CaseImage from './CaseImage.astro';
 import Arrow from './Arrow.astro';
 import { caseUrl } from '../data/site';
@@ -23,8 +25,8 @@ const image = cardImage ?? cover;
     <p class="case-client">{client}</p>
     <h3>{title}</h3>
     <p class="case-summary">{summary}</p>
-    <a class="text-link card-action" href={caseUrl(entry.slug)}>
-      Leer caso <span class="sr-only"> de {client}: {title}</span><span aria-hidden="true"><Arrow /></span>
+    <a class="text-link card-action" href={caseUrl(entry.slug, entry.data.language)}>
+      {t.read} <span class="sr-only"> {t.readOf} {client}: {title}</span><span aria-hidden="true"><Arrow /></span>
     </a>
   </div>
 </article>

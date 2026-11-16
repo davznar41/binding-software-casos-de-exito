@@ -1,5 +1,6 @@
 ---
 status: demostracion
+caseId: hotel-bruma-turnos
 origin: sintetico
 title: Un registro de llegada para dos turnos
 summary: Un registro de recepción reúne las llegadas pendientes antes de cada relevo.

@@ -1,4 +1,6 @@
 ---
+import { languageFromPath, ui } from '../data/languages';
+const t = ui(languageFromPath(Astro.url.pathname));
 import CaseCard from './CaseCard.astro';
 import type { VisibleCase } from '../lib/cases';
 
@@ -10,7 +12,7 @@ const { entries } = Astro.props;
 {entries.length > 0 && (
   <section class="case-related section" aria-labelledby="related-title">
     <div class="container">
-      <h2 id="related-title">Casos relacionados</h2>
+      <h2 id="related-title">{t.related}</h2>
       <ul class="case-grid" role="list">
         {entries.map((entry) => <li data-editorial-enter><CaseCard entry={entry} /></li>)}
       </ul>

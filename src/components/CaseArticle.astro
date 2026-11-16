@@ -1,0 +1,10 @@
+---
+import CaseStudyLayout from '../layouts/CaseStudyLayout.astro';
+import type { caseStaticPaths } from '../lib/cases';
+import { renderEditorial } from '../lib/editorial';
+
+type Props = Awaited<ReturnType<typeof caseStaticPaths>>[number]['props'];
+const { entry, related, paths } = Astro.props;
+const blocks = await renderEditorial(entry);
+---
+<CaseStudyLayout entry={entry} related={related} paths={paths} blocks={blocks} />

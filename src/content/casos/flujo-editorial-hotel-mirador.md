@@ -1,5 +1,6 @@
 ---
 status: demostracion
+caseId: flujo-editorial-hotel-mirador
 origin: sintetico
 title: Una llegada compartida entre recepción y el siguiente turno
 summary: El Hotel Mirador registra el estado de cada llegada para que recepción pueda dar continuidad al servicio durante el relevo.

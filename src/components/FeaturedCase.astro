@@ -1,4 +1,6 @@
 ---
+import { languageFromPath, ui } from '../data/languages';
+const t = ui(languageFromPath(Astro.url.pathname));
 import CaseImage from './CaseImage.astro';
 import CorporateCTA from './CorporateCTA.astro';
 import { caseUrl } from '../data/site';
@@ -19,12 +21,12 @@ const image = cover ?? cardImage;
     </figure>
   )}
   <div class="featured-copy">
-    <p class="case-kicker">Caso destacado <span aria-hidden="true">·</span> {category}</p>
+    <p class="case-kicker">{t.featured} <span aria-hidden="true">·</span> {category}</p>
     <p class="case-client">{client}</p>
     <h2>{title}</h2>
     <p class="case-summary">{summary}</p>
-    <CorporateCTA class="featured-action" href={caseUrl(entry.slug)}>
-      Leer caso <span class="sr-only"> de {client}: {title}</span>
+    <CorporateCTA class="featured-action" href={caseUrl(entry.slug, entry.data.language)}>
+      {t.read} <span class="sr-only"> {t.readOf} {client}: {title}</span>
     </CorporateCTA>
   </div>
 </article>

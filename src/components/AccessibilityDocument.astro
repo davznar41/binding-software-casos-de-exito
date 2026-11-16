@@ -1,0 +1,30 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { accessibilityPaths, siteFor } from '../data/site';
+import { languageFromPath, ui } from '../data/languages';
+const language = languageFromPath(Astro.url.pathname);
+const site = siteFor(language);
+const t = ui(language);
+---
+
+<BaseLayout title={t.accessibility + ' | Binding Software'} description={t.accessDescription} paths={accessibilityPaths}>
+  <article class="document container">
+    <div class="document-inner">
+      <h1>{t.accessibility}</h1>
+      <p class="intro">{t.accessIntro}</p>
+      <section aria-labelledby="measures-title">
+        <h2 id="measures-title">{t.measures}</h2>
+        <p>{t.measureText}</p>
+      </section>
+      <section aria-labelledby="scope-title">
+        <h2 id="scope-title">{t.scope}</h2>
+        <p>{t.scopeText}</p>
+      </section>
+      <section aria-labelledby="support-title">
+        <h2 id="support-title">{t.support}</h2>
+        <p>{t.supportText} <a href={site.contact}>{t.supportLink}</a>.</p>
+      </section>
+      <a class="text-link return" href={site.cases}><span aria-hidden="true">←</span> {t.returnCases}</a>
+    </div>
+  </article>
+</BaseLayout>

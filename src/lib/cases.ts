@@ -2,12 +2,14 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { blockFiles, imageFiles } from './editorial';
+import { caseUrl } from '../data/site';
+import type { Language, LocalizedPaths } from '../data/languages';
 
 export type CaseEntry = CollectionEntry<'casos'>;
 export type CaseData = CaseEntry['data'];
 export type CaseImage = NonNullable<CaseData['cover']>;
 export type EditorialBlock = CaseData['blocks'][number];
-export type CaseStudy = CaseEntry & { slug: string };
+export type CaseStudy = CaseEntry & { slug: string; caseId: string };
 export type VisibleCase = CaseStudy;
 
 const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -46,16 +48,28 @@ export async function visibleCases() {
   const entries = (await getCollection('casos')).map((entry) => ({
     ...entry,
     slug: entry.data.slug ?? entry.id,
+    caseId: entry.data.caseId ?? entry.data.slug ?? entry.id,
   }));
   const slugs = new Set<string>();
+  const identities = new Set<string>();
+  const origins = new Map<string, CaseData['origin']>();
+  const caseIds = new Set(entries.map(entry => entry.caseId));
   for (const entry of entries) {
     if (!slugPattern.test(entry.slug) || reserved.has(entry.slug)) {
       throw new Error('Caso «' + entry.id + '»: slug inválido o reservado «' + entry.slug + '».');
     }
-    if (slugs.has(entry.slug)) {
+    const localSlug = entry.data.language + '/' + entry.slug;
+    if (slugs.has(localSlug)) {
       throw new Error('Caso «' + entry.id + '»: slug duplicado «' + entry.slug + '».');
     }
-    slugs.add(entry.slug);
+    slugs.add(localSlug);
+    const identity = entry.data.language + '/' + entry.caseId;
+    if (identities.has(identity)) throw new Error('Caso «' + entry.id + '»: identidad duplicada «' + identity + '».');
+    identities.add(identity);
+    if (origins.has(entry.caseId) && origins.get(entry.caseId) !== entry.data.origin) {
+      throw new Error('Caso «' + entry.id + '»: las traducciones deben conservar la misma procedencia.');
+    }
+    origins.set(entry.caseId, entry.data.origin);
     for (const file of mediaFiles(entry)) {
       if (!existsSync(caseMediaPath(file))) {
         throw new Error('Caso «' + entry.id + '»: falta el recurso «' + file + '» en src/assets/casos/.');
@@ -65,9 +79,13 @@ export async function visibleCases() {
   const publicTitles = new Set<string>();
   const publicSeoTitles = new Set<string>();
   for (const entry of entries) {
+    if (entry.data.language === 'en' && !identities.has('es/' + entry.caseId)) {
+      throw new Error('Caso «' + entry.id + '»: no existe la entrada española para «' + entry.caseId + '».');
+    }
     if (entry.data.status === 'publicado') {
-      const title = entry.data.title.toLocaleLowerCase('es');
-      const seoTitle = (entry.data.seo?.title ?? entry.data.title).toLocaleLowerCase('es');
+      const language = entry.data.language;
+      const title = language + '/' + entry.data.title.toLocaleLowerCase(language);
+      const seoTitle = language + '/' + (entry.data.seo?.title ?? entry.data.title).toLocaleLowerCase(language);
       if (publicTitles.has(title) || publicSeoTitles.has(seoTitle)) {
         throw new Error('Caso «' + entry.id + '»: el título de un caso publicado debe ser único.');
       }
@@ -75,7 +93,7 @@ export async function visibleCases() {
       publicSeoTitles.add(seoTitle);
     }
     for (const target of entry.data.related ?? []) {
-      if (target === entry.slug || !slugs.has(target)) {
+      if (target === entry.caseId || !caseIds.has(target)) {
         throw new Error('Caso «' + entry.id + '»: relación inválida con «' + target + '».');
       }
     }
@@ -86,7 +104,7 @@ export async function visibleCases() {
 
 function compareCases(a: VisibleCase, b: VisibleCase) {
   return (b.data.publishedOn ?? '').localeCompare(a.data.publishedOn ?? '') ||
-    a.slug.localeCompare(b.slug, 'es');
+    a.slug.localeCompare(b.slug, a.data.language);
 }
 
 function normalizeTerm(value: string) {
@@ -107,8 +125,8 @@ function sameTerm(value: string | undefined, candidate: string | undefined) {
 
 export function relatedCases(entry: VisibleCase, entries: VisibleCase[]) {
   const available = new Map(entries
-    .filter(({ slug }) => slug !== entry.slug)
-    .map((candidate) => [candidate.slug, candidate]));
+    .filter(candidate => candidate.caseId !== entry.caseId && candidate.data.language === entry.data.language)
+    .map(candidate => [candidate.caseId, candidate]));
   const selected: VisibleCase[] = [];
   for (const slug of entry.data.related ?? []) {
     const candidate = available.get(slug);
@@ -131,4 +149,22 @@ export function relatedCases(entry: VisibleCase, entries: VisibleCase[]) {
   }).sort((a, b) => b.score - a.score || compareCases(a.candidate, b.candidate));
 
   return selected.concat(ranked.slice(0, 3 - selected.length).map(({ candidate }) => candidate));
+}
+
+export function articlePaths(entry: VisibleCase, entries: VisibleCase[]): LocalizedPaths {
+  const paths: LocalizedPaths = { es: undefined, en: undefined };
+  for (const candidate of entries) {
+    if (candidate.caseId === entry.caseId) {
+      paths[candidate.data.language] = caseUrl(candidate.slug, candidate.data.language);
+    }
+  }
+  return paths;
+}
+
+export async function caseStaticPaths(language: Language) {
+  const entries = await visibleCases();
+  return entries.filter(entry => entry.data.language === language).map(entry => ({
+    params: { slug: entry.slug },
+    props: { entry, related: relatedCases(entry, entries), paths: articlePaths(entry, entries) },
+  }));
 }

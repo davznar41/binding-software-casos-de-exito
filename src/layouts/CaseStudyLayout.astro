@@ -5,14 +5,18 @@ import CorporateHero from '../components/CorporateHero.astro';
 import CaseFacts from '../components/CaseFacts.astro';
 import CaseEditorial from '../components/CaseEditorial.astro';
 import RelatedCases from '../components/RelatedCases.astro';
-import { caseMediaUrl, site } from '../data/site';
+import { caseMediaUrl, siteFor } from '../data/site';
+import { otherLanguage, ui, type LocalizedPaths } from '../data/languages';
 import type { VisibleCase } from '../lib/cases';
 import type { RenderedBlock } from '../lib/editorial';
 
-interface Props { entry: VisibleCase; related: VisibleCase[]; blocks: RenderedBlock[] }
+interface Props { entry: VisibleCase; related: VisibleCase[]; blocks: RenderedBlock[]; paths: LocalizedPaths }
 
-const { entry, related, blocks } = Astro.props;
+const { entry, related, blocks, paths } = Astro.props;
 const { category, title, summary, client, cover, seo, breadcrumbLabel } = entry.data;
+const language = entry.data.language;
+const t = ui(language);
+const site = siteFor(language);
 const social = seo?.image ?? cover;
 ---
 
@@ -20,21 +24,23 @@ const social = seo?.image ?? cover;
   title={(seo?.title ?? title) + ' | Binding Software'}
   description={seo?.description ?? summary}
   kind="article"
+  paths={paths}
   image={social && { url: caseMediaUrl(social.file), alt: social.alt }}
 >
   <article class="case-article">
     <CorporateHero title={title} summary={summary} eyebrow={category} credit={cover?.caption} hasMedia={Boolean(cover)}>
       {cover && <CaseImage slot="media" image={cover} eager sizes="100vw" />}
-      <nav slot="trail" class="breadcrumbs" aria-label="Ruta de navegación">
+      <nav slot="trail" class="breadcrumbs" aria-label={t.breadcrumbs}>
         <ol role="list">
-          <li><a href={site.home}>Inicio</a><span aria-hidden="true">/</span></li>
-          <li><a href={site.cases}>Casos de éxito</a><span aria-hidden="true">/</span></li>
+          <li><a href={site.home}>{t.home}</a><span aria-hidden="true">/</span></li>
+          <li><a href={site.cases}>{t.cases}</a><span aria-hidden="true">/</span></li>
           <li><span aria-current="page">{breadcrumbLabel ?? title}</span></li>
         </ol>
       </nav>
       <p slot="byline" class="case-client">{client}</p>
     </CorporateHero>
     <div class="container article-contents">
+      {!paths[otherLanguage(language)] && <p class="article-language-note"><a class="text-link" href={siteFor(otherLanguage(language)).cases} hreflang={otherLanguage(language)}>{t.missing}</a></p>}
       <div class="article-grid">
         <CaseFacts data={entry.data} />
         <CaseEditorial blocks={blocks} />
@@ -43,7 +49,7 @@ const social = seo?.image ?? cover;
   </article>
   <RelatedCases entries={related} />
   <div class="container article-return">
-    <a class="text-link" href={site.cases}><span aria-hidden="true">←</span> Volver a Casos de éxito</a>
+    <a class="text-link" href={site.cases}><span aria-hidden="true">←</span> {t.returnCases}</a>
   </div>
 </BaseLayout>
 
