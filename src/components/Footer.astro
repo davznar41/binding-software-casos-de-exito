@@ -1,5 +1,8 @@
 ---
-import { site } from '../data/site';
+import { languageFromPath, ui } from '../data/languages';
+const t = ui(languageFromPath(Astro.url.pathname));
+import { siteFor } from '../data/site';
+const site = siteFor(languageFromPath(Astro.url.pathname));
 const isAccessibility = Astro.url.pathname === site.accessibility;
 ---
 
@@ -9,25 +12,25 @@ const isAccessibility = Astro.url.pathname === site.accessibility;
       <p class="footer-brand">
         Binding<span> Software</span>
       </p>
-      <p class="footer-description">Tecnología que conecta la hospitalidad.</p>
+      <p class="footer-description">{t.footerDescription}</p>
     </div>
-    <nav aria-label="Pie de página">
+    <nav aria-label={t.footerNav}>
       <a href={site.home}>
-        Inicio
+        {t.home}
       </a>
       <a
         href={site.accessibility}
         aria-current={isAccessibility ? 'page' : undefined}
       >
-        Accesibilidad
+        {t.accessibility}
       </a>
       <a href={site.contact}>
-        Contacto <span aria-hidden="true">↗</span>
+        {t.contact} <span aria-hidden="true">↗</span>
       </a>
     </nav>
   </div>
   <div class="container footer-note">
-    <p>Binding Software · Tecnología para la gestión hotelera</p>
+    <p>{t.footerNote}</p>
   </div>
 </footer>
 <style>

@@ -1,0 +1,16 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { catalogPaths } from '../data/site';
+---
+
+<BaseLayout
+  title="Página no encontrada | Binding Software"
+  description="Enlaces a los catálogos de casos de éxito en español e inglés."
+  indexable={false}
+>
+  <div class="container section">
+    <h1>Página no encontrada <span lang="en">· Page not found</span></h1>
+    <p><a class="text-link" href={catalogPaths.es}>Volver a Casos de éxito</a></p>
+    <p lang="en"><a class="text-link" href={catalogPaths.en}>Back to case studies</a></p>
+  </div>
+</BaseLayout>

@@ -11,7 +11,7 @@ const suite = modularDir ? 'modular' : acceptanceDir ? 'plantilla' : 'site';
 
 export default defineConfig({
   testDir: './tests',
-  testMatch: suite === 'site' ? ['site.spec.ts', 'interactions.spec.ts', 'links.spec.ts'] : suite + '.spec.ts',
+  testMatch: suite === 'site' ? ['site.spec.ts', 'interactions.spec.ts', 'links.spec.ts', 'languages.spec.ts'] : suite + '.spec.ts',
   workers: 1,
   timeout: 30_000,
   reporter: [

@@ -1,0 +1,63 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CorporateHero from '../components/CorporateHero.astro';
+import CorporateCTA from '../components/CorporateCTA.astro';
+import photo from '../assets/corporate/hospitalidad.webp';
+import mobilePhoto from '../assets/corporate/hospitalidad-movil.webp';
+import CaseCard from '../components/CaseCard.astro';
+import FeaturedCase from '../components/FeaturedCase.astro';
+import { siteFor } from '../data/site';
+import { languageFromPath, ui } from '../data/languages';
+import { visibleCases } from '../lib/cases';
+
+const language = languageFromPath(Astro.url.pathname);
+const t = ui(language);
+const site = siteFor(language);
+const entries = (await visibleCases()).filter(entry => entry.data.language === language);
+const featured = entries.find(({ data }) => data.status === 'publicado' && data.featured)
+  ?? entries.find(({ data }) => data.featured);
+const listed = entries.filter((entry) => entry !== featured);
+---
+
+<BaseLayout
+  title={t.cases + ' | Binding Software'}
+  description={t.catalogDescription}
+>
+  <CorporateHero
+    eyebrow={t.catalogEyebrow}
+    title={t.cases}
+    summary={t.catalogSummary}
+  >
+    <picture slot="media">
+      <source media="(max-width: 44rem)" srcset={mobilePhoto.src} />
+      <Image src={photo} alt="" loading="eager" fetchpriority="high" />
+    </picture>
+  </CorporateHero>
+  <div class="container catalog section">
+    {featured && <FeaturedCase entry={featured} />}
+    {listed.length > 0 && (
+      <section class="catalog-list" aria-labelledby="catalog-title">
+        <h2 id="catalog-title">{featured ? t.more : t.stories}</h2>
+        <ul class="case-grid" role="list">
+          {listed.map((entry) => <li data-editorial-enter><CaseCard entry={entry} /></li>)}
+        </ul>
+      </section>
+    )}
+    {entries.length === 0 && (
+      <section class="catalog-empty" aria-labelledby="empty-title">
+        <h2 id="empty-title">{t.emptyTitle}</h2>
+        <p>{t.emptyText}</p>
+      </section>
+    )}
+  </div>
+  <section class="cases-contact section" aria-labelledby="contact-title">
+    <div class="container cases-contact-inner">
+      <div>
+        <h2 id="contact-title">{t.contactTitle}</h2>
+        <p>{t.contactText}</p>
+      </div>
+      <CorporateCTA href={site.contact}>{t.contactAction}</CorporateCTA>
+    </div>
+  </section>
+</BaseLayout>

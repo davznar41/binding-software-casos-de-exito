@@ -1,20 +1,7 @@
 ---
 import type { GetStaticPaths } from 'astro';
-import CaseStudyLayout from '../../layouts/CaseStudyLayout.astro';
-import { relatedCases, visibleCases } from '../../lib/cases';
-import { renderEditorial } from '../../lib/editorial';
-
-export const getStaticPaths = (async () => {
-  const entries = await visibleCases();
-  return entries.map((entry) => ({
-    params: { slug: entry.slug },
-    props: { entry, related: relatedCases(entry, entries) },
-  }));
-}) satisfies GetStaticPaths;
-
-const { entry, related } = Astro.props;
-const blocks = await renderEditorial(entry);
+import CaseArticle from '../../components/CaseArticle.astro';
+import { caseStaticPaths } from '../../lib/cases';
+export const getStaticPaths = (() => caseStaticPaths('es')) satisfies GetStaticPaths;
 ---
-
-<CaseStudyLayout entry={entry} related={related} blocks={blocks} />
-
+<CaseArticle {...Astro.props} />

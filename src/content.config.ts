@@ -124,6 +124,8 @@ const casos = defineCollection({
   }),
   schema: z.strictObject({
     status: z.enum(['borrador', 'demostracion', 'publicado']),
+    language: z.enum(['es', 'en']).default('es'),
+    caseId: slug.optional(),
     origin: z.enum(['sintetico', 'autorizado']).optional(),
     slug: slug.optional(),
     title: text,
@@ -154,6 +156,10 @@ const casos = defineCollection({
       image: image.optional(),
     }).optional(),
   }).superRefine((entry, context) => {
+    if (entry.language === 'en' && !entry.caseId) {
+      context.addIssue({ code: 'custom', path: ['caseId'], message: 'La versión inglesa requiere el identificador estable del caso.' });
+    }
+
     if (entry.status === 'publicado' && entry.origin !== 'autorizado') {
       context.addIssue({
         code: 'custom',

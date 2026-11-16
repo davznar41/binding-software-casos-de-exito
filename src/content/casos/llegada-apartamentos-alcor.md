@@ -1,5 +1,6 @@
 ---
 status: demostracion
+caseId: llegada-apartamentos-alcor
 origin: sintetico
 title: Una llegada más clara a los apartamentos
 summary: Apartamentos Alcor reúne las instrucciones previas a la llegada y las comprobaciones en un solo recorrido.

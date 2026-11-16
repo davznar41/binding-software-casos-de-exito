@@ -4,6 +4,8 @@ import EditorialMotion from '../components/EditorialMotion.astro';
 import Footer from '../components/Footer.astro';
 import interFont from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
 import { isReview } from '../lib/cases';
+import { languageFromPath, ui, languages, type LocalizedPaths } from '../data/languages';
+import { catalogPaths } from '../data/site';
 import '../styles/tokens.css';
 import '../styles/global.css';
 import '../styles/cases.css';
@@ -12,24 +14,33 @@ interface Props {
   title: string;
   description: string;
   kind?: 'article' | 'website';
+  paths?: LocalizedPaths;
+  indexable?: boolean;
   image?: { url: string; alt: string };
 }
 
-const { title, description, kind = 'website', image } = Astro.props;
-const canonical = !isReview && Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined;
+const { title, description, kind = 'website', image, paths = catalogPaths, indexable = true } = Astro.props;
+const language = languageFromPath(Astro.url.pathname);
+const t = ui(language);
+const canonical = indexable && !isReview && Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined;
 const socialImage = canonical && image ? new URL(image.url, canonical).href : undefined;
 ---
 
 <!doctype html>
-<html lang="es">
+<html lang={language}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="theme-color" content="#21172b" />
-    {isReview && <meta name="robots" content="noindex, nofollow" />}
+    {(isReview || !indexable) && <meta name="robots" content="noindex, nofollow" />}
     {canonical && <link rel="canonical" href={canonical} />}
+    {canonical && languages.map(locale => {
+      const path = paths[locale];
+      return path && <link rel="alternate" hreflang={locale} href={new URL(path, canonical).href} />;
+    })}
+    <meta property="og:locale" content={language === 'es' ? 'es_ES' : 'en_GB'} />
     <meta property="og:type" content={kind} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -41,8 +52,8 @@ const socialImage = canonical && image ? new URL(image.url, canonical).href : un
     <link rel="icon" type="image/png" href="/assets/branding/favicon.png" />
   </head>
   <body>
-    <a href="#contenido" class="skip-link">Saltar al contenido</a>
-    <Header />
+    <a href="#contenido" class="skip-link">{t.skip}</a>
+    <Header paths={paths} />
     <main id="contenido" tabindex="-1">
       <slot />
     </main>

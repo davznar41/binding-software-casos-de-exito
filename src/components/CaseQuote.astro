@@ -1,8 +1,10 @@
 ---
+import { languageFromPath, ui } from '../data/languages';
+const t = ui(languageFromPath(Astro.url.pathname));
 import CaseImage from './CaseImage.astro';
 import type { EditorialBlock } from '../lib/cases';
 interface Props { quote: Extract<EditorialBlock, { type: 'testimonio' }>['quote']; id: string; title?: string }
-const { quote, id, title = 'Testimonio' } = Astro.props;
+const { quote, id, title = t.quote } = Astro.props;
 ---
 
 <section class="article-section" aria-labelledby={id}>

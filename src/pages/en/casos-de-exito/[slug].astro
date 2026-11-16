@@ -1,0 +1,7 @@
+---
+import type { GetStaticPaths } from 'astro';
+import CaseArticle from '../../../components/CaseArticle.astro';
+import { caseStaticPaths } from '../../../lib/cases';
+export const getStaticPaths = (() => caseStaticPaths('en')) satisfies GetStaticPaths;
+---
+<CaseArticle {...Astro.props} />

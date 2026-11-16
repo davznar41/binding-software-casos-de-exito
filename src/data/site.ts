@@ -1,29 +1,41 @@
-const corporate = 'https://bindingsoftware.com';
+import { ui, type Language } from './languages';
 
-export const site = {
-  name: 'Binding Software',
-  home: corporate + '/',
-  cases: '/casos-de-exito/',
-  accessibility: '/accesibilidad/',
-  contact: corporate + '/contacto/',
-  english: corporate + '/en/',
-  brand: '/assets/binding-logo.webp',
+const corporate = 'https://bindingsoftware.com';
+const login = 'https://app.bindingid.com/login';
+export const catalogPaths = { es: '/casos-de-exito/', en: '/en/casos-de-exito/' };
+export const accessibilityPaths = { es: '/accesibilidad/', en: '/en/accessibility/' };
+const corporatePaths = {
+  es: { home: '/', why: '/por-que-binding/', research: '/idi/', comparator: '/check-in-360/', contact: '/contacto/' },
+  en: { home: '/en/', why: '/en/why-binding/', research: '/en/ri/', comparator: '/en/check-in-360/', contact: '/en/contact/' },
 };
 
-export const primaryLinks = [
-  { label: 'Inicio', href: site.home },
-  { label: 'Por qué Binding', href: corporate + '/por-que-binding/' },
-  { label: 'I+D+i', href: corporate + '/idi/' },
-  { label: 'Comparador 360º', href: corporate + '/check-in-360/' },
-  { label: 'Contacto', href: site.contact },
-  { label: 'Casos de éxito', href: site.cases },
-  { label: 'Login', href: 'https://app.bindingid.com/login' },
-];
+export function siteFor(language: Language) {
+  const urls = corporatePaths[language];
+  return {
+    home: corporate + urls.home,
+    contact: corporate + urls.contact,
+    cases: catalogPaths[language],
+    accessibility: accessibilityPaths[language],
+    brand: '/assets/binding-logo.webp',
+  };
+}
 
-export function caseUrl(slug: string) {
-  return site.cases + slug + '/';
+export function primaryLinks(language: Language) {
+  const labels = ui(language);
+  const urls = corporatePaths[language];
+  return [
+    ...(['home', 'why', 'research', 'comparator', 'contact'] as const).map(key => ({
+      key, label: labels[key], href: corporate + urls[key],
+    })),
+    { key: 'cases', label: language === 'en' ? 'Success Stories' : labels.cases, href: catalogPaths[language] },
+    { key: 'login', label: 'Login', href: login },
+  ];
+}
+
+export function caseUrl(slug: string, language: Language = 'es') {
+  return catalogPaths[language] + slug + '/';
 }
 
 export function caseMediaUrl(file: string) {
-  return site.cases + 'media/' + file;
+  return catalogPaths.es + 'media/' + file;
 }

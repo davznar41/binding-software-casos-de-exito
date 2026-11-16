@@ -1,91 +1,61 @@
 # Binding Software · Casos de éxito
 
-`binding-software-casos-de-exito` es el catálogo editorial de Binding Software. Reúne un índice, un caso destacado y artículos que presentan el contexto de cada cliente, la solución implantada y sus resultados.
+Catálogo corporativo estático en español e inglés. Una plantilla editorial compartida genera los artículos a partir de Markdown y permite incorporar nuevas historias, traducciones y combinaciones de bloques.
 
-Cada caso se redacta en Markdown. Una plantilla compartida permite elegir y ordenar bloques de texto, imágenes, galerías, vídeos, testimonios, resultados y comparaciones. Astro genera la página del caso y actualiza el catálogo según su estado editorial.
+**[Ver la presentación y explorar la demo en Netlify](https://casosdeexitodemoidioma.netlify.app/)** · Vídeo de 5:50 sin audio, transcripción y acceso a cinco casos en ambos idiomas. La demo incluye ejemplos ficticios.
 
-[Ver la presentación del proyecto en Netlify](https://presentacioncasosdeexito.netlify.app/). Incluye el recorrido audiovisual, una transcripción y acceso al catálogo de revisión con ejemplos ficticios y contenido pendiente de aprobación editorial.
+## Desarrollo local
 
-## Instalación y ejecución
-
-Proyecto estático con Astro **6.4.8**, TypeScript estricto, CSS nativo y Content Collections con validación Zod. La entrega se verificó con **Node.js 24.11.1** y **pnpm 11.25.0** en Windows. El mínimo declarado es Node.js **22.19.0**.
+Astro **6.4.8**, TypeScript estricto, CSS nativo y Content Collections con Zod. Requiere **Node.js ≥22.19.0** y **pnpm 11.25.0**. Ambas compilaciones se comprobaron con Node 22.19.0 y la suite completa con Node 24.11.1.
 
 ```sh
 pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-El servidor local arranca en modo revisión. Abre el catálogo en [localhost:4321/casos-de-exito/](http://127.0.0.1:4321/casos-de-exito/).
+El servidor local abre la revisión en los catálogos [ES](http://127.0.0.1:4321/casos-de-exito/) y [EN](http://127.0.0.1:4321/en/casos-de-exito/).
 
-| Comando | Resultado |
+| Comando | Uso |
 | --- | --- |
-| `pnpm dev:borradores` | Abre la revisión local con borradores. |
-| `pnpm build` | Genera la compilación pública en `dist/`. |
-| `pnpm build:revision` | Genera la compilación de revisión en `dist-revision/`. |
-| `pnpm preview` | Sirve localmente la compilación pública. |
-| `pnpm preview:revision` | Sirve localmente la compilación de revisión. |
-| `pnpm exec playwright install chromium` | Instala Chromium para la suite. |
-| `pnpm verify` | Comprueba Astro y TypeScript, genera ambas compilaciones y ejecuta las pruebas. |
+| `pnpm dev:borradores` | Incluye borradores en la revisión local. |
+| `pnpm build` / `pnpm preview` | Compila y sirve la salida publicable de `dist/`. |
+| `pnpm build:revision` / `pnpm preview:revision` | Compila y sirve `dist-revision/`, con las demostraciones. |
+| `pnpm exec playwright install chromium` | Instala Chromium para las pruebas de navegador. |
+| `pnpm verify` | Ejecuta Astro check, TypeScript, ambos builds y las pruebas editoriales y de navegador. |
 
 ## Arquitectura y escalabilidad editorial
 
 | Pieza | Responsabilidad |
 | --- | --- |
-| [Colecciones y esquema](src/content.config.ts) | Valida el estado editorial, los campos de cada caso y los tipos de bloque. |
-| [Ruta de artículo](src/pages/casos-de-exito/%5Bslug%5D.astro) y [plantilla compartida](src/layouts/CaseStudyLayout.astro) | Generan una página estática por slug con estructura, navegación y presentación comunes. |
-| [Renderizador editorial](src/components/CaseEditorial.astro) | Selecciona el componente de cada bloque y conserva el orden declarado en Markdown. |
-| [Catálogo](src/pages/casos-de-exito/index.astro) y [selección de casos](src/lib/cases.ts) | Determinan qué casos aparecen, su orden y las recomendaciones relacionadas. |
+| [Esquema editorial](src/content.config.ts) | Valida campos, estados de publicación y tipos de bloques. |
+| [Rutas de catálogo y detalle](src/pages/) | Astro genera el catálogo y las páginas de los artículos en ambos idiomas. |
+| [Plantilla del artículo](src/layouts/CaseStudyLayout.astro) y [renderizador](src/components/CaseEditorial.astro) | Comparten estructura corporativa y renderizan cada bloque en el orden declarado. |
+| [Selección de casos](src/lib/cases.ts) | Filtra la visibilidad editorial, resuelve traducciones y selecciona casos relacionados. |
+| [Navegación corporativa](src/data/site.ts) y [estilos](src/styles/) | Centralizan enlaces, tokens y estilos reutilizables para integrar la sección en Astro. |
 
-**Añadir un artículo** requiere su Markdown y los medios que utilice. Cada caso puede omitir, repetir o reordenar bloques. El catálogo y los artículos se regeneran al compilar, sin crear una ruta ni una plantilla por cliente.
+Cada historia puede repetir, omitir o reordenar bloques de texto, imagen, galería, vídeo, testimonio, comparación y resultados. El catálogo y las fichas se regeneran al compilar. Si se necesita un tipo de bloque nuevo, se amplían el esquema y el renderizador compartidos y se implementa su componente.
 
-**Añadir un tipo de bloque** requiere definir sus campos en el esquema, implementar el componente Astro y conectarlo al renderizador. Los artículos que lo necesiten pueden incorporarlo a `blocks`.
+## Crear y traducir un caso
 
-## Añadir un caso
+1. Copia la [plantilla editorial](tests/fixtures/editorial/plantilla.md) a `src/content/casos/`. Conserva el estado `borrador` mientras editas y elige un slug estable en minúsculas y con guiones.
+2. Ordena los bloques en `blocks`. Un bloque `texto` sin `file` muestra el cuerpo Markdown. Para intercalar tramos de texto, toma como referencia los fragmentos de `src/content/textos/` y los artículos que los enlazan.
+3. Guarda los medios en `src/assets/casos/`. Declara dimensiones reales y textos alternativos en el idioma del artículo. Para galerías están disponibles las variantes `uniforme` y `destacada`.
+4. Para traducir, declara el mismo `caseId` en ambas entradas y `language: en` en la traducción. Los slugs pueden ser distintos. Usa los `caseId` en `related` para curar las relaciones. Revisa ambas versiones con `pnpm dev:borradores`.
 
-1. Crea un archivo en `src/content/casos/` a partir de la [plantilla editorial](tests/fixtures/plantilla-editorial.md). El nombre del archivo determina el slug salvo que declares uno. Usa minúsculas y guiones.
-2. Guarda los medios en `src/assets/casos/`. Declara el archivo, las dimensiones reales y el texto alternativo de las imágenes. Las galerías admiten las variantes `uniforme` y `destacada`.
-3. Ordena los bloques, conserva el caso en `borrador` y revísalo con `pnpm dev:borradores`. Un bloque `texto` sin `file` muestra el cuerpo Markdown.
+## Publicación e integración
 
-```markdown
----
-status: borrador
-title: Cómo se prepara una llegada
-summary: Contexto y pasos de un proceso de recepción.
-client: Establecimiento de ejemplo
-category: Check-in digital
-blocks:
-  - type: texto
-  - type: imagen
-    image:
-      file: mostrador-turnos-648.webp
-      alt: Mostrador con equipo de recepción y cuaderno
-      width: 648
-      height: 432
----
-
-## Contexto
-
-Describe el punto de partida del establecimiento.
-```
-
-Para recomendar otros artículos, declara sus slugs en `related`. La selección prioriza esas relaciones y puede completar hasta tres tarjetas con casos afines disponibles en la compilación.
-
-## Revisión y publicación
-
-| Estado | Dónde aparece |
+| Estado | Disponibilidad |
 | --- | --- |
-| `borrador` | Solo en el servidor local iniciado con `pnpm dev:borradores`. |
-| `demostracion` | En la revisión local y en `dist-revision/`. |
-| `publicado` | En la revisión y en el build público `dist/`. Requiere `origin: autorizado` y fecha en `publishedOn`. |
+| `borrador` | Edición local con `pnpm dev:borradores`. |
+| `demostracion` | Revisión local y build de revisión. |
+| `publicado` | Revisión y build público. Requiere `origin: autorizado` y fecha en `publishedOn`. |
 
-La compilación pública genera los artículos aprobados y los medios editoriales que referencian. Usa la compilación de revisión con acceso restringido cuando incluya material pendiente de aprobación. La directiva `noindex` indica a los buscadores que no indexen la revisión.
+La compilación filtra también los medios exclusivos de las entradas excluidas. Usa control de acceso en el alojamiento si el build de revisión contiene material restringido. La directiva `noindex` indica a los buscadores que omitan la indexación.
 
-## Integración con la web corporativa
+Para integrar la sección en la web corporativa, conserva las rutas `/casos-de-exito/` y `/en/casos-de-exito/` y resuelve los enlaces corporativos desde [la configuración de navegación](src/data/site.ts). Configura `BINDING_SITE_URL` con el dominio aprobado para las URL canónicas y las equivalencias de idioma en producción.
 
-La sección usa `/casos-de-exito/` para el catálogo y `/casos-de-exito/<slug>/` para cada artículo. Al integrarla, conserva esas rutas y revisa los enlaces del menú y del pie desde la [configuración de navegación](src/data/site.ts). Configura el dominio definitivo con `site` en [Astro](astro.config.mjs) para que el [layout base](src/layouts/BaseLayout.astro) genere las URL canónicas en producción. Antes de publicar, valida la aprobación editorial, los derechos de los medios y la política de dependencias.
+## Validación y accesibilidad
 
-## Accesibilidad y validación
+`pnpm verify` cubre las dos compilaciones estáticas, la exclusión de borradores, la creación de casos desde Markdown, las traducciones, la navegación, las galerías, los vídeos y el reflujo. La entrega registró **81 pruebas superadas**.
 
-El objetivo es **WCAG 2.2 AA**. El sitio incorpora navegación por teclado, foco visible, HTML semántico, textos alternativos, reflujo y respeto por la preferencia de movimiento reducido. Los vídeos locales incluyen transcripción y, cuando tienen audio, subtítulos WebVTT.
-
-La entrega registró **69 pruebas superadas y 85 evaluaciones axe sin infracciones detectadas**. Las pruebas cubren publicación estática, estados editoriales, navegación, galerías, vídeo y reflujo. Queda pendiente la evaluación manual con lectores de pantalla y dispositivos físicos.
+El objetivo es WCAG 2.2 AA. La interfaz contempla semántica, navegación por teclado, foco visible, alternativas de imagen, reflujo y movimiento reducido. Los vídeos locales incluyen transcripción y subtítulos cuando corresponde. Las pruebas automáticas con axe complementan la revisión manual con tecnologías de asistencia.

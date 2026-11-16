@@ -1,5 +1,6 @@
 ---
 status: demostracion
+caseId: cetina-hotels-binding-identity
 origin: autorizado
 featured: true
 title: Una bienvenida más ágil en Cetina Hotels

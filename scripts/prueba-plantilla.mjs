@@ -31,7 +31,7 @@ function page(output, route = '') {
   return join(output, 'casos-de-exito', route, 'index.html');
 }
 
-const template = readFileSync('tests/fixtures/plantilla-editorial.md', 'utf8');
+const template = readFileSync('tests/fixtures/editorial/plantilla.md', 'utf8');
 const example = template
   .replace('status: borrador', 'status: demostracion').replace('# origin: autorizado', 'origin: sintetico')
   .replace('title: Titular del caso', 'title: Una recepción coordinada antes de la llegada')

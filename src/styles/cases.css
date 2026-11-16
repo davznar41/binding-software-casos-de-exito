@@ -45,7 +45,19 @@
 
 .featured-copy {
   align-content: center;
+  grid-template-columns: minmax(0, 1fr);
   padding: clamp(1.5rem, 4vw, 3rem);
+  padding-inline: min(clamp(1.5rem, 4vw, 3rem), 10%);
+}
+
+.featured-copy .button,
+.cases-contact-inner > .button {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  overflow-wrap: anywhere;
+  /* Keep room for the label beside the arrow when text is enlarged. */
+  padding-inline: min(var(--space-6), max(8px, (100% - 100px) / 4));
+  column-gap: min(var(--space-6), 24px);
 }
 
 .featured-copy .button {
@@ -538,4 +550,7 @@
 
 .editorial-flow > .editorial-wide {
   inline-size: 100%;
+}
+.article-language-note {
+  margin-block-end: var(--space-6);
 }

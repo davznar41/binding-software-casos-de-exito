@@ -1,4 +1,6 @@
 ---
+import { languageFromPath, ui } from '../data/languages';
+const t = ui(languageFromPath(Astro.url.pathname));
 import CaseImage from './CaseImage.astro';
 import { caseMediaUrl } from '../data/site';
 import type { EditorialBlock } from '../lib/cases';
@@ -37,7 +39,7 @@ const external = video.provider === 'youtube'
           <track kind="captions" src={caseMediaUrl(track.file)} srclang={track.lang}
             label={track.label} default={index === 0} />
         ))}
-        <a href={caseMediaUrl(video.sources[0])}>Abrir el vídeo «{video.title}»</a>
+        <a href={caseMediaUrl(video.sources[0])}>{t.openVideo} «{video.title}»</a>
       </video>
     )}
     {external && (
@@ -45,9 +47,9 @@ const external = video.provider === 'youtube'
         <div data-player>
           {video.poster && <div class="video-poster"><CaseImage image={video.poster} sizes="(min-width: 62rem) 760px, 92vw" /></div>}
         </div>
-        <button hidden type="button" class="button" data-activate>Cargar vídeo de {external.label}<span class="sr-only">: {video.title}</span></button>
-        <p class="video-privacy">Al cargar el vídeo, el reproductor se conecta con {external.label}.</p>
-        <a class="text-link" href={external.watch} rel="noreferrer">Ver «{video.title}» en {external.label} <span aria-hidden="true">↗</span></a>
+        <button hidden type="button" class="button" data-activate>{t.loadVideo} {external.label}<span class="sr-only">: {video.title}</span></button>
+        <p class="video-privacy">{t.videoPrivacy} {external.label}.</p>
+        <a class="text-link" href={external.watch} rel="noreferrer">{t.watch} «{video.title}» {t.on} {external.label} <span aria-hidden="true">↗</span></a>
         <template>
           <iframe src={external.embed} title={video.title}
             referrerpolicy="strict-origin-when-cross-origin" allow="fullscreen; picture-in-picture" allowfullscreen></iframe>
@@ -57,10 +59,10 @@ const external = video.provider === 'youtube'
     {video.caption && <figcaption>{video.caption}</figcaption>}
   </figure>
   {video.provider === 'local' && video.describedVersion && (
-    <a class="text-link" href={caseMediaUrl(video.describedVersion)}>Ver «{video.title}» con audiodescripción</a>
+    <a class="text-link" href={caseMediaUrl(video.describedVersion)}>{t.watch} «{video.title}» {t.audioDescription}</a>
   )}
   <details class="video-transcript">
-    <summary>Transcripción y descripción<span class="sr-only"> de {video.title}</span></summary>
+    <summary>{t.transcript}<span class="sr-only"> {t.of} {video.title}</span></summary>
     <p>{video.transcript}</p>
   </details>
 </section>

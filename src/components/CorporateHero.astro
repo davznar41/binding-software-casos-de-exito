@@ -49,6 +49,17 @@ const { title, summary, eyebrow, credit, hasMedia = Astro.slots.has('media') } =
     z-index: -1;
   }
 
+  /* Extend the photo under the sticky header without moving hero content. */
+  :global(body:has(> .site-header.menu-enhanced)) .hero-media {
+    inset-block-start: calc(-1 * var(--site-header-height));
+    block-size: calc(100% + var(--site-header-height));
+  }
+
+  :global(body:has(> .site-header.menu-enhanced)) .hero-media::after {
+    inset-block-start: var(--site-header-height);
+    block-size: calc(100% - var(--site-header-height));
+  }
+
   .hero-media :global(img) {
     object-fit: cover;
     --case-focal-current: var(--case-focal-mobile, center);
